@@ -46,7 +46,7 @@ To avoid having to supply the multi-function,  current dispatch value and formal
 
 ## NOTE
 
-* The implementation is currently horrendously ineffective, basically recreating the method chain for
+* The implementation is currently horrendously inefficient, basically recreating the method chain for
 each invocation of `call-next-method`. On the upside, there is no overhead unless `call-next-method`
 is actually invoked, and it is completely compliant with regular `defmethod`'s and `defmulti`'s, so
 can safely coexist with regular method definitions for a multi-function.
