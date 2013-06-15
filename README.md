@@ -40,6 +40,13 @@ To avoid having to supply both current dispatch value and formal parameter in th
 (defmethod* my-fun Integer [x] (println "my-fun on an int") (call-next-method))
 ```
 
+## NOTE
+
+The implementation is currently horrendously ineffective, basically recreating the method chain for
+each invocation to `call-next-method`. On the upside, there is no overhead unless `call-next-method`
+is actually invoked, and it is completely compliant with regular `defmethod`'s and `defmulti`'s, so
+can coexist with regular method definitions for a multi-method.
+
 ## Testing
 
 You can rune the Midje unit tests by
