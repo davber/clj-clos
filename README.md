@@ -14,9 +14,11 @@ Include the `clj-clos` namespace
 
 One can either use the full version of `call-next-method` from within a regular `defmethod`, as in
 
-  (defmulti my-fun type)
-  (defmethod my-fun Object [x] (println "my-fun on a regular object"))
-  (defmethod my-fun Integer [x] (println "my-fun on an int") (call-next-method Integer x))
+```clojure
+(defmulti my-fun type)
+(defmethod my-fun Object [x] (println "my-fun on a regular object"))
+(defmethod my-fun Integer [x] (println "my-fun on an int") (call-next-method Integer x))
+```
 
 When invoked with
 
