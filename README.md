@@ -17,7 +17,7 @@ One can either use the full version of `call-next-method` from within a regular 
 ```clojure
 (defmulti my-fun type)
 (defmethod my-fun Object [x] (println "my-fun on a regular object"))
-(defmethod my-fun Integer [x] (println "my-fun on an int") (call-next-method Integer x))
+(defmethod my-fun Integer [x] (println "my-fun on an int") (call-next-method my-fun Integer x))
 ```
 
 When invoked with
@@ -33,7 +33,7 @@ my-fun on an int
 my-fun on a regular object
 ```
 
-To avoid having to supply both current dispatch value and formal parameter in the invocation
+To avoid having to supply the multi-function,  current dispatch value and formal parameter in the invocation
 `call-next-method`, one can use the `defmethod*` macro which yields a form very similar to CLOS:
 
 ```clojure
@@ -45,7 +45,7 @@ To avoid having to supply both current dispatch value and formal parameter in th
 The implementation is currently horrendously ineffective, basically recreating the method chain for
 each invocation to `call-next-method`. On the upside, there is no overhead unless `call-next-method`
 is actually invoked, and it is completely compliant with regular `defmethod`'s and `defmulti`'s, so
-can coexist with regular method definitions for a multi-method.
+can coexist with regular method definitions for a multi-function.
 
 ## Testing
 
