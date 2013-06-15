@@ -27,28 +27,28 @@
     ::parent-1)
   (defmethod chained-methods ::child-1-1 [x]
     (called-in ::child-1-1)
-    (call-next-function chained-methods ::child-1-1 x)
+    (call-next-method chained-methods ::child-1-1 x)
     ::child-1-1)
 
   (defmulti three-related identity)
   (defmethod three-related ::grandchild-1-1-1 [x]
     (called-in ::grandchild-1-1-1)
-    (call-next-function three-related ::grandchild-1-1-1 x))
+    (call-next-method three-related ::grandchild-1-1-1 x))
   (defmethod three-related ::parent-1 [x]
     (called-in ::parent-1)
-    (call-next-function three-related ::parent-1 x))
+    (call-next-method three-related ::parent-1 x))
   (defmethod three-related ::child-1-1 [x]
     (called-in ::child-1-1)
-    (call-next-function three-related ::child-1-1 x))
+    (call-next-method three-related ::child-1-1 x))
   (defmethod three-related ::parent-2 [x] (called-in ::parent-2))
 
   (defmulti chained-method* identity)
   (defmethod* chained-method* ::child-1-1 [x]
     (called-in ::child-1-1)
-    (call-next-function))
+    (call-next-method))
   (defmethod* chained-method* ::parent-1 [x]
     (called-in ::parent-1)
-    (call-next-function)))
+    (call-next-method)))
 
 (defn teardown-methods []
   (doseq [mf [two-unrelated two-related chained-methods three-related]]
@@ -83,9 +83,9 @@
        in the chain, skipping the unrelated one"
   (dispatch-chain three-related ::grandchild-1-1-1) => (just ::child-1-1 ::parent-1))
 
-(fact "The defmethod* macro indeed replaces call-next-function with a parameterized version"
-  (macroexpand-1 `(defmethod* foo ::foo [x] (call-next-function))) =>
-  `(defmethod foo ::foo [x] (call-next-function foo ::foo x)))
+(fact "The defmethod* macro indeed replaces call-next-method with a parameterized version"
+  (macroexpand-1 `(defmethod* foo ::foo [x] (call-next-method))) =>
+  `(defmethod foo ::foo [x] (call-next-method foo ::foo x)))
 
 (fact "Three related methods will call in to all of them when chaining methods"
   (three-related ::grandchild-1-1-1 ) => anything

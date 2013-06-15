@@ -20,8 +20,8 @@
   [multifn dispatch-value]
   (map (methods multifn) (dispatch-chain multifn dispatch-value)))
 
-(defn call-next-function
-  "Emulates CLOS 'call-next-function' by in call-time creating a calling chain
+(defn call-next-method
+  "Emulates CLOS 'call-next-method' by in call-time creating a calling chain
    based on the current dispatch value and arguments.
    NOTE: quite slow.
    Supposed to be used inside a 'defmethod', using the dispatch-value and arguments
@@ -31,14 +31,14 @@
     (apply next-fn args)))
 
 (defmacro defmethod*
-  "Like defmethod but allows the use of a simple parameter-less 'call-next-function'
+  "Like defmethod but allows the use of a simple parameter-less 'call-next-method'
    in the body, just like CLOS.
-   NOTE: if using 'call-next-function', you do need to capture the arguments, i.e.,
+   NOTE: if using 'call-next-method', you do need to capture the arguments, i.e.,
    no _ ..."
   [multifn dispatch-val params & fn-tail]
-  ;; We replace each '(call-next-function)' form with one with parameters
-  (let [new-fn-tail (map #(if (= % `(~'call-next-function))
-                            `(call-next-function ~multifn ~dispatch-val ~@params)
+  ;; We replace each '(call-next-method)' form with one with parameters
+  (let [new-fn-tail (map #(if (= % `(~'call-next-method))
+                            `(call-next-method ~multifn ~dispatch-val ~@params)
                             %) fn-tail)]
     `(defmethod ~multifn ~dispatch-val ~params ~@new-fn-tail)))
 
