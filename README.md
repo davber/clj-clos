@@ -12,7 +12,9 @@ Include the `clj-clos` namespace
 (:use [clj-clos.core :only [call-next-method defmethod*]])
 ```
 
-One can either use the full version of `call-next-method` from within a regular `defmethod`, as in
+### Verbose version
+
+One can use the full version of `call-next-method` from within a regular `defmethod`, as in
 
 ```clojure
 (defmulti my-fun type)
@@ -32,6 +34,8 @@ it will print out
 my-fun on an int
 my-fun on a regular object
 ```
+
+### Succinct version
 
 To avoid having to supply the multi-function,  current dispatch value and formal parameter in the invocation
 `call-next-method`, one can use the `defmethod*` macro which yields a form very similar to CLOS:
