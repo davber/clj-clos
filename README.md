@@ -26,24 +26,24 @@ When invoked with
 
 it will print out
 
-```clojure
-  my-fun on an int
-  my-fun on a regular object
+```
+my-fun on an int
+my-fun on a regular object
 ```
 
 To avoid having to supply both current dispatch value and formal parameter in the invocation
 `call-next-method`, one can use the `defmethod*` macro which yields a form very similar to CLOS:
 
 ```clojure
-  (defmethod* my-fun Integer [x] (println "my-fun on an int") (call-next-method))
+(defmethod* my-fun Integer [x] (println "my-fun on an int") (call-next-method))
 ```
 
 ## Testing
 
 You can rune the Midje unit tests by
 
-```clojure
-  lein midje
+```bash
+lein midje
 ```
 
 ## License
