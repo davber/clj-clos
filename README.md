@@ -8,7 +8,9 @@ via a CLOS-esque `call-next-method`.
 
 Include the `clj-clos` namespace
 
-  (:use [clj-clos :only [call-next-method defmethod*]])
+```clojure
+(:use [clj-clos :only [call-next-method defmethod*]])
+```
 
 One can either use the full version of `call-next-method` from within a regular `defmethod`, as in
 
@@ -18,26 +20,31 @@ One can either use the full version of `call-next-method` from within a regular 
 
 When invoked with
 
-  (my-fun 42)
+```clojure
+(my-fun 42)
+```
 
 it will print out
 
+```clojure
   my-fun on an int
   my-fun on a regular object
-
+```
 
 To avoid having to supply both current dispatch value and formal parameter in the invocation
 `call-next-method`, one can use the `defmethod*` macro which yields a form very similar to CLOS:
 
+```clojure
   (defmethod* my-fun Integer [x] (println "my-fun on an int") (call-next-method))
-
+```
 
 ## Testing
 
 You can rune the Midje unit tests by
 
+```clojure
   lein midje
-
+```
 
 ## License
 
