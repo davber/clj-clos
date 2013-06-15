@@ -49,7 +49,7 @@
   (defmethod* chained-method* ::parent-1 [x]
     (called-in ::parent-1)
     (call-next-method)))
-
+  
 (defn teardown-methods []
   (doseq [mf [two-unrelated two-related chained-methods three-related]]
     (remove-all-methods mf)))
@@ -84,8 +84,10 @@
   (dispatch-chain three-related ::grandchild-1-1-1) => (just ::child-1-1 ::parent-1))
 
 (fact "The defmethod* macro indeed replaces call-next-method with a parameterized version"
-  (macroexpand-1 `(defmethod* foo ::foo [x] (call-next-method))) =>
-  `(defmethod foo ::foo [x] (call-next-method foo ::foo x)))
+  (macroexpand-1 `(defmethod* chained-method* ::child-1-1 [~'x]
+                    (called-in ::child-1-1) (call-next-method))) =>
+  `(defmethod chained-method* ::child-1-1 [~'x] (called-in ::child-1-1)
+     (call-next-method chained-method* ::child-1-1 ~'x)))
 
 (fact "Three related methods will call in to all of them when chaining methods"
   (three-related ::grandchild-1-1-1 ) => anything

@@ -37,7 +37,8 @@
    no _ ..."
   [multifn dispatch-val params & fn-tail]
   ;; We replace each '(call-next-method)' form with one with parameters
-  (let [new-fn-tail (map #(if (= % `(~'call-next-method))
+  ;; TODO: we currently look for both qualified and simple symbol
+  (let [new-fn-tail (map #(if (#{`(call-next-method) '(call-next-method)} %)
                             `(call-next-method ~multifn ~dispatch-val ~@params)
                             %) fn-tail)]
     `(defmethod ~multifn ~dispatch-val ~params ~@new-fn-tail)))
