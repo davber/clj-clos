@@ -37,7 +37,7 @@ my-fun on a regular object
 
 ### Succinct version
 
-To avoid having to supply the multi-function,  current dispatch value and formal parameter in the invocation
+To avoid having to supply the multi-function,  current dispatch value and formal parameter in the invocation of
 `call-next-method`, one can use the `defmethod*` macro which yields a form very similar to CLOS:
 
 ```clojure
@@ -47,9 +47,9 @@ To avoid having to supply the multi-function,  current dispatch value and formal
 ## NOTE
 
 * The implementation is currently horrendously ineffective, basically recreating the method chain for
-each invocation to `call-next-method`. On the upside, there is no overhead unless `call-next-method`
+each invocation of `call-next-method`. On the upside, there is no overhead unless `call-next-method`
 is actually invoked, and it is completely compliant with regular `defmethod`'s and `defmulti`'s, so
-can coexist with regular method definitions for a multi-function.
+can safely coexist with regular method definitions for a multi-function.
 
 * It currently resolves the chain from the universal taxonomy, i.e., any custom taxonomy provided to
 `defmulti` will be silently ignored.
@@ -59,7 +59,7 @@ the end of the chain, but instead it becomes a noop.
 
 ## Testing
 
-You can rune the Midje unit tests by
+You can run the Midje unit tests by
 
 ```bash
 lein midje
