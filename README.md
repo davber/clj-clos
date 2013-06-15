@@ -9,7 +9,7 @@ via a CLOS-esque `call-next-method`.
 Include the `clj-clos` namespace
 
 ```clojure
-(:use [clj-clos :only [call-next-method defmethod*]])
+(:use [clj-clos.core :only [call-next-method defmethod*]])
 ```
 
 One can either use the full version of `call-next-method` from within a regular `defmethod`, as in
