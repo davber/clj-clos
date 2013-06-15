@@ -57,6 +57,9 @@ can safely coexist with regular method definitions for a multi-function.
 * Another distinction from CLOS, is that no exception is raised when trying to call next method at
 the end of the chain, but instead it becomes a noop.
 
+* When using `call-next-method` inside a method, one **has to** capture the actual parameters to the
+method with proper formal parameters, i.e., one **cannot** use `_` as a formal parameter.
+
 ## Testing
 
 You can run the Midje unit tests by
