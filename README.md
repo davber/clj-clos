@@ -42,10 +42,16 @@ To avoid having to supply the multi-function,  current dispatch value and formal
 
 ## NOTE
 
-The implementation is currently horrendously ineffective, basically recreating the method chain for
+* The implementation is currently horrendously ineffective, basically recreating the method chain for
 each invocation to `call-next-method`. On the upside, there is no overhead unless `call-next-method`
 is actually invoked, and it is completely compliant with regular `defmethod`'s and `defmulti`'s, so
 can coexist with regular method definitions for a multi-function.
+
+* It currently resolves the chain from the universal taxonomy, i.e., any custom taxonomy provided to
+`defmulti` will be silently ignored.
+
+* Another distinction from CLOS, is that no exception is raised when trying to call next method at
+the end of the chain, but instead it becomes a noop.
 
 ## Testing
 
