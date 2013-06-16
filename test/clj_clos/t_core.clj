@@ -8,9 +8,9 @@
 (derive ::child-2-2 ::parent-2)
 (derive ::grandchild-1-1-1 ::child-1-1)
 
-(defn called-in [tag]
-  ;; NOTE: this is just here for Midje to decide whether it was called and with what value
-)
+(defn called-in
+  "This is just here for Midje to decide whether it was called and with what value"
+  [tag])
 
 (defn setup-methods []
   (defmulti two-unrelated identity)
@@ -83,12 +83,6 @@
        in the chain, skipping the unrelated one"
   (dispatch-chain three-related ::grandchild-1-1-1) => (just ::child-1-1 ::parent-1))
 
-(fact "The defmethod* macro indeed replaces call-next-method with a parameterized version"
-  (macroexpand-1 `(defmethod* chained-method* ::child-1-1 [~'x]
-                    (called-in ::child-1-1) (call-next-method))) =>
-  `(defmethod chained-method* ::child-1-1 [~'x] (called-in ::child-1-1)
-     (call-next-method chained-method* ::child-1-1 ~'x)))
-
 (fact "Three related methods will call in to all of them when chaining methods"
   (three-related ::grandchild-1-1-1 ) => anything
   (provided
@@ -96,5 +90,26 @@
    (called-in ::child-1-1) => anything
    (called-in ::parent-1) => anything))
 
-(fact "Chaining methods via our own defmethod* works"
-  (chained-method* ::child-1-1) => anything)
+(fact "Chaining methods via our own defmethod* does invoke a cache recall, which fails
+      since it is the first time"
+  (chained-method* ::child-1-1) => anything
+  (provided
+   (recall-next-method chained-method* ::child-1-1) => nil?))
+
+(fact "Chaining methods will recall the cached method second time around"
+  (chained-method* ::child-1-1) => anything
+  (provided (recall-next-method chained-method* ::child-1-1) => (get-method chained-method* ::parent-1)
+            (recall-next-method chained-method* ::parent-1) => nil)
+  (against-background (before :facts (chained-method* ::child-1-1))))
+
+
+(fact "Chaining method via our own defmethod* indeed calls into the more generic variant as well"
+  (chained-method* ::child-1-1) => anything
+  (provided
+   (called-in ::child-1-1) => anything
+   (called-in ::parent-1) => anything))
+
+(fact "Defining new method with defmethod* clears the next method cache"
+  (defmethod* chained-method* ::foo [x]) => anything
+  (provided
+   (clear-next-method! chained-method*) => anything))
