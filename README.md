@@ -46,7 +46,7 @@ To avoid having to supply the multi-function,  current dispatch value and formal
 
 ## NOTE
 
-* The implementation is quite inefficient since it calculates the whole method chain even though only next one is used.
+* The implementation is quite inefficient since it calculates the whole method chain even though only next one is used. **NOTE**: not really, since the chain is lazy, but the way it is calculated and then sorted makes it quite likely that all elements of the chain are indeed calculated.
 
 * Whenever a method chain is calculated it *is* cached, though, for use next time. **NOTE**: this
 cache will be cleared every time `defmethod*` is invoked, but not for regular `defmethod` forms, so
