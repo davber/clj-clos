@@ -62,7 +62,7 @@ To avoid having to supply the multi-function,  current dispatch value and formal
 Or, using a `:before` method:
 
 ```clojure
-(defmethod* my-fun :before Integer [x] (println "my-fun on an int"))
+(defmethod* my-fun Integer :before [x] (println "my-fun on an int"))
 ```
 
 which will automatically call into the `Object` version.
