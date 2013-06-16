@@ -33,8 +33,8 @@ One can use the full version of `call-next-method` from within a regular `defmet
 
 ```clojure
 (defmulti my-fun type)
-(defmethod my-fun Object [x] (println "my-fun on a regular object"))
-(defmethod my-fun Integer [x] (println "my-fun on an int") (call-next-method my-fun Integer x))
+(defmethod my-fun Object [_] (println "my-fun on a regular object"))
+(defmethod my-fun Integer [_] (println "my-fun on an int") (call-next-method my-fun Integer x))
 ```
 
 When invoked with
@@ -56,7 +56,7 @@ To avoid having to supply the multi-function,  current dispatch value and formal
 `call-next-method`, one can use the `defmethod*` macro which yields a form very similar to CLOS:
 
 ```clojure
-(defmethod* my-fun Integer [x] (println "my-fun on an int") (call-next-method))
+(defmethod* my-fun Integer [_] (println "my-fun on an int") (call-next-method))
 ```
 
 Or, using a `:before` method:
