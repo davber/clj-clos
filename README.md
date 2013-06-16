@@ -49,7 +49,7 @@ To avoid having to supply the multi-function,  current dispatch value and formal
 * The implementation is quite inefficient since it calculates the whole method chain even though only next one is used.
 
 * Whenever a method chain is calculated it *is* cached, though, for use next time. **NOTE**: this
-cache will be cleared every time `defmethod*` is invoked, but not for regular `demethod` forms, so
+cache will be cleared every time `defmethod*` is invoked, but not for regular `defmethod` forms, so
 the latter can create a stale cache. I.e., please use `defmethod*` instead of `defmethod`.
 
 * It currently resolves the chain from the universal taxonomy, i.e., any custom taxonomy provided to
