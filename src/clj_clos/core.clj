@@ -61,14 +61,22 @@
 (defmacro defmethod*
   "Like defmethod but allows the use of a simple parameter-less 'call-next-method'
    in the body, just like CLOS.
+   One can provide a :before or :after keyword after the dispatch value.
    NOTE: if using 'call-next-method', you do need to capture the arguments, i.e.,
    no _ ..."
-  [multifn dispatch-val params & fn-tail]
+  [multifn dispatch-val & rest]
   ;; We replace each '(call-next-method)' form with one with parameters
   ;; TODO: we currently look for both qualified and simple symbol
-  (let [new-fn-tail (map #(if (#{`(call-next-method) '(call-next-method)} %)
+  (let [key (when (#{:before :after} (first rest)) (first rest))
+        params ((if key second first) rest)
+        fn-tail (if key (drop 2 rest) (next rest))
+        aug-tail (case key
+                   :after `((call-next-method) ~@fn-tail)
+                   :before `(~@fn-tail (call-next-method))
+                   fn-tail)
+        new-fn-tail (map #(if (#{`(call-next-method) '(call-next-method)} %)
                             `(call-next-method ~multifn ~dispatch-val ~@params)
-                            %) fn-tail)]
+                            %) aug-tail)]
     ;; We clear the cache for this multifn
     `(do (clear-next-method! ~multifn)
          (defmethod ~multifn ~dispatch-val ~params ~@new-fn-tail))))

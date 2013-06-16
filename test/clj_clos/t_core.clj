@@ -2,17 +2,22 @@
   "Midje tests for the clj-clos.core namespace"
   (:use midje.sweet clj-clos.core))
 
-(derive ::child-1-1 ::parent-1)
-(derive ::child-1-1 ::parent-1)
-(derive ::child-2-1 ::parent-2)
-(derive ::child-2-2 ::parent-2)
-(derive ::grandchild-1-1-1 ::child-1-1)
+;; Some helper checkers
+
+(defn- is-or-has? [x]
+  (some-fn (partial = x) (contains [x])))
 
 (defn called-in
   "This is just here for Midje to decide whether it was called and with what value"
   [tag])
 
 (defn setup-methods []
+  (derive ::child-1-1 ::parent-1)
+  (derive ::child-1-1 ::parent-1)
+  (derive ::child-2-1 ::parent-2)
+  (derive ::child-2-2 ::parent-2)
+  (derive ::grandchild-1-1-1 ::child-1-1)
+
   (defmulti two-unrelated identity)
   (defmethod two-unrelated ::parent-1 [_] ::parent-1)
   (defmethod two-unrelated ::parent-2 [_] ::parent-2)
@@ -51,10 +56,18 @@
     (call-next-method)))
   
 (defn teardown-methods []
-  (doseq [mf [two-unrelated two-related chained-methods three-related]]
-    (remove-all-methods mf)))
+  (doseq [mf [two-unrelated two-related chained-methods three-related chained-method*]]
+    (remove-all-methods mf))
+
+  (underive ::child-1-1 ::parent-1)
+  (underive ::child-1-1 ::parent-1)
+  (underive ::child-2-1 ::parent-2)
+  (underive ::child-2-2 ::parent-2)
+  (underive ::grandchild-1-1-1 ::child-1-1))
+
 
 (background (before :facts (setup-methods) :after (teardown-methods)))
+
 
 (fact "A multifunction with two unrelated methods generates empty ancestor method chain for each dispatch value"
   (method-chain two-unrelated ::parent-1) => empty?
@@ -113,3 +126,32 @@
   (defmethod* chained-method* ::foo [x]) => anything
   (provided
    (clear-next-method! chained-method*) => anything))
+
+(fact "Defining an after method invokes it after the more generic call"
+  (chained-method* ::child-1-2) => anything
+  (provided
+    (called-in ::parent-1) => nil
+    (called-in ::child-1-2) => nil)
+  (against-background
+   (before :facts
+           (do (derive ::child-1-2 ::parent-1)
+               (defmethod* chained-method* ::child-1-2 :after [x] (called-in ::child-1-2))))))
+
+(fact "Defining an before method invokes it after the more generic call"
+  (chained-method* ::child-1-2) => anything
+  (provided
+    (called-in ::parent-1) => nil
+    (called-in ::child-1-2) => nil)
+  (against-background
+   (before :facts
+           (do (derive ::child-1-2 ::parent-1)
+               (defmethod* chained-method* ::child-1-2 :before [x] (called-in ::child-1-2)))
+           :after (underive ::child-1-2 ::parent-1))))
+
+(fact "Expanding a before method yields a form with call-next-method called last"
+  (macroexpand-1 `(defmethod* foo :foo :before [~'x] :foo)) =>
+  (is-or-has? `(defmethod foo :foo [~'x] :foo (call-next-method foo :foo ~'x))))
+
+(fact "Expanding an after method yields a form with call-next-method called first"
+  (macroexpand-1 `(defmethod* foo :foo :after [~'x] :foo)) =>
+  (is-or-has? `(defmethod foo :foo [~'x] (call-next-method foo :foo ~'x) :foo)))

@@ -1,8 +1,23 @@
 # CLOS for Clojure
 
 This library contains tools to provide a more dynamic method dispatching mechanism to
-Clojure's multi-methods. It currently adds a way to call the next method in the chain,
-via a CLOS-esque `call-next-method`.
+Clojure's multi-methods.
+
+## Features
+
+* `call-next-method` - invokable from with a `defmethod` or `defmethod*` to propagate to
+the next more generic method for the given dispatch value.
+* `defmethod*` - just like the good old `defmethod` but with some extra maintenance for
+handling cached method chains. **NOTE**: this is preferable to `defmethod`.
+* `:before` - keyword to `defmethod*` to make sure the method is invoked before automatically
+propagating to next method in chain. **NOTE**: the behavior of these before methods is slightly
+distinct from CLOS, in that all methods are invoked in same stage, rather than the
+stratified approach (of `:before`, `:after` and `:around`, and regular methods) of CLOS.
+* `:after` - keyword to `defmethod*` to make sure the method is invoked after automatically
+propagating to next method in chain. **NOTE**: see note for `:before`.
+
+One can actually propagate manually, via `call-next-method`, even in a `:before` or `:after` method,
+but that will then invoke that chain **twice**.
 
 ## Usage
 
@@ -43,6 +58,14 @@ To avoid having to supply the multi-function,  current dispatch value and formal
 ```clojure
 (defmethod* my-fun Integer [x] (println "my-fun on an int") (call-next-method))
 ```
+
+Or, using a `:before` method:
+
+```clojure
+(defmethod* my-fun :before Integer [x] (println "my-fun on an int"))
+```
+
+which will automatically call into the `Object` version.
 
 ## NOTE
 
