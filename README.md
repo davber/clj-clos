@@ -81,8 +81,6 @@ the latter can create a stale cache. I.e., please use `defmethod*` instead of `d
 * Another distinction from CLOS, is that no exception is raised when trying to call next method at
 the end of the chain, but instead it becomes a noop.
 
-* When using `call-next-method` inside a method, one **has to** capture the actual parameters to the
-method with proper formal parameters, i.e., one **cannot** use `_` as a formal parameter.
 
 ## Testing
 
