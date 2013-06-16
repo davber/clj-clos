@@ -153,6 +153,18 @@
                (defmethod* chained-method* ::child-1-2 :before [x] (called-in ::child-1-2)))
            :after (underive ::child-1-2 ::parent-1))))
 
+(fact "Calling next method in a nested form works"
+  (chained-method* ::child-1-2) => anything
+  (provided
+   (called-in ::parent-1) => nil
+   (called-in ::child-1-2) => nil)
+  (against-background
+   (before :facts
+           (do (derive ::child-1-2 ::parent-1)
+               (defmethod* chained-method* ::child-1-2 [_] (called-in ::child-1-2)
+                 (when true (call-next-method))))
+           :after (underive ::child-1-2 ::parent-1))))
+
 (fact "Using an anonymous formal parameter in a method works properly with the call-next-method"
   (chained-method* ::child-1-2) => anything
   (provided

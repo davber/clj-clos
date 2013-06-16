@@ -1,7 +1,8 @@
 (ns clj-clos.core
   "Defines some CLOS-like primitives for use with Clojure multimethods"
   (:use [clj-clos.sort :only [kahn-sort]]
-        [clojure.set :only [intersection]]))
+        [clojure.set :only [intersection]]
+        [clojure.walk :only [postwalk-replace]]))
 
 ;; TODO: use proper and more generic memoization techniques for the method chain builders
 ;; instead of ad hoc caching
@@ -78,9 +79,10 @@
                    :after `((call-next-method) ~@fn-tail)
                    :before `(~@fn-tail (call-next-method))
                    fn-tail)
-        new-fn-tail (map #(if (#{`(call-next-method) '(call-next-method)} %)
-                            `(call-next-method ~multifn ~dispatch-val ~@formal-params)
-                            %) aug-tail)]
+        expanded-call `(call-next-method ~multifn ~dispatch-val ~@formal-params)
+        new-fn-tail (postwalk-replace {`(call-next-method) expanded-call,
+                                       '(call-next-method) expanded-call}
+                                      aug-tail)]
     ;; We clear the cache for this multifn
     `(do (clear-next-method! ~multifn)
          (defmethod ~multifn ~dispatch-val ~formal-params (let ~let-bindings ~@new-fn-tail)))))
