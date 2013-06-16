@@ -81,6 +81,9 @@ the latter can create a stale cache. I.e., please use `defmethod*` instead of `d
 * Another distinction from CLOS, is that no exception is raised when trying to call next method at
 the end of the chain, but instead it becomes a noop.
 
+* The chaining of methods currently only works if the dispatch values themselves are related
+in the universal taxonomy, i.e., does **not** lift taxonomies of vector elements into vector (dispatch values); this will be fixed shortly!
+
 
 ## Testing
 
