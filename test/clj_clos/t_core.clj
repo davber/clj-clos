@@ -17,7 +17,9 @@
   (derive ::child-2-1 ::parent-2)
   (derive ::child-2-2 ::parent-2)
   (derive ::grandchild-1-1-1 ::child-1-1)
+  (derive ::sub ::super)
 
+  (defmulti meth (comp first vector))
   (defmulti two-unrelated identity)
   (defmethod two-unrelated ::parent-1 [_] ::parent-1)
   (defmethod two-unrelated ::parent-2 [_] ::parent-2)
@@ -56,14 +58,17 @@
     (call-next-method)))
   
 (defn teardown-methods []
-  (doseq [mf [two-unrelated two-related chained-methods three-related chained-method*]]
+  (doseq [mf [two-unrelated two-related chained-methods three-related chained-method* meth]]
     (remove-all-methods mf))
 
   (underive ::child-1-1 ::parent-1)
   (underive ::child-1-1 ::parent-1)
   (underive ::child-2-1 ::parent-2)
   (underive ::child-2-2 ::parent-2)
-  (underive ::grandchild-1-1-1 ::child-1-1))
+  (underive ::grandchild-1-1-1 ::child-1-1)
+  (underive ::sub ::super)
+
+  (def meth nil))
 
 
 (background (before :facts (setup-methods) :after (teardown-methods)))
@@ -148,10 +153,25 @@
                (defmethod* chained-method* ::child-1-2 :before [x] (called-in ::child-1-2)))
            :after (underive ::child-1-2 ::parent-1))))
 
-(fact "Expanding a before method yields a form with call-next-method called last"
-  (macroexpand-1 `(defmethod* foo :foo :before [~'x] :foo)) =>
-  (is-or-has? `(defmethod foo :foo [~'x] :foo (call-next-method foo :foo ~'x))))
+(fact "Using an anonymous formal parameter in a method works properly with the call-next-method"
+  (chained-method* ::child-1-2) => anything
+  (provided
+    (called-in ::child-1-2) => nil
+    (called-in ::parent-1) => nil)
+  (against-background
+   (before :facts
+           (do (derive ::child-1-2 ::parent-1)
+               (defmethod* chained-method* ::child-1-2 [_] (called-in ::child-1-2)
+                 (call-next-method)))
+           :after (underive ::child-1-2 ::parent-1))))
 
-(fact "Expanding an after method yields a form with call-next-method called first"
-  (macroexpand-1 `(defmethod* foo :foo :after [~'x] :foo)) =>
-  (is-or-has? `(defmethod foo :foo [~'x] (call-next-method foo :foo ~'x) :foo)))
+(fact "Using two identical formal parameters still works properly, i.e., hygiene is preserved in defmethod*"
+  (count (methods meth)) => 2
+  (meth ::sub ::sub) => anything
+  (provided
+   (called-in ::sub) => nil
+   (called-in ::super) => nil)
+  (against-background
+   (before :facts
+           (do (defmethod* meth ::super [_ _] (called-in ::super))
+               (defmethod* meth ::sub [_ _] (called-in ::sub) (call-next-method))))))

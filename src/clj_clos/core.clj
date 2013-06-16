@@ -69,17 +69,21 @@
   ;; TODO: we currently look for both qualified and simple symbol
   (let [key (when (#{:before :after} (first rest)) (first rest))
         params ((if key second first) rest)
+        ;; We replace parameters with new symbols and wrap the body in
+        ;; a let form with the formal parameters being the variables
+        formal-params (vec (map gensym params))
+        let-bindings (vec (interleave params formal-params))
         fn-tail (if key (drop 2 rest) (next rest))
         aug-tail (case key
                    :after `((call-next-method) ~@fn-tail)
                    :before `(~@fn-tail (call-next-method))
                    fn-tail)
         new-fn-tail (map #(if (#{`(call-next-method) '(call-next-method)} %)
-                            `(call-next-method ~multifn ~dispatch-val ~@params)
+                            `(call-next-method ~multifn ~dispatch-val ~@formal-params)
                             %) aug-tail)]
     ;; We clear the cache for this multifn
     `(do (clear-next-method! ~multifn)
-         (defmethod ~multifn ~dispatch-val ~params ~@new-fn-tail))))
+         (defmethod ~multifn ~dispatch-val ~formal-params (let ~let-bindings ~@new-fn-tail)))))
 
 (defmacro defmulti*
   "Macro that expands to a defmulti, but also sets up a method DAG for
