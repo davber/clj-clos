@@ -30,7 +30,7 @@
 (defn taxonomy
   "Yields a DAG of the given taxa, based on ancestry"
   [taxa]
-  (into {} (map (fn [taxon] [taxon (intersection taxa (ancestors taxon))]) taxa)))
+  (into {} (map (fn [taxon] [taxon (intersection taxa (parents taxon))]) taxa)))
 
 (defn dispatch-chain
   "Get a chain of potential following dispatch values for a given multifn and given dispatch value"
